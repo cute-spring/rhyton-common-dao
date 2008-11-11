@@ -231,6 +231,17 @@ public class SqlMapClientGenericPlusDaoImp<T, PK extends Serializable> extends S
     public void batchRemove(final List<PK> PrimaryKeyList) throws DataAccessException {
 	batchExecute(iBatisDaoUtils.getDeleteByPrimaryKeyQuery(this.getClassName()), PrimaryKeyList);
     }
+    
+    
+    /**
+     * batch update from db
+     * 
+     * @param parameterList
+     * @throws DataAccessException
+     */
+    public void batchUpdate(final List<T> parameterList) throws DataAccessException {
+	batchExecute(iBatisDaoUtils.getUpdateQuery(this.getClassName()), parameterList);
+    }
 
     /**
      * @param daoMethodName
