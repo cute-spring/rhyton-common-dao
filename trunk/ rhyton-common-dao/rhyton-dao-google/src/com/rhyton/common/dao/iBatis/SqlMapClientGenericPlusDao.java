@@ -16,12 +16,14 @@ public interface SqlMapClientGenericPlusDao<T, PK extends Serializable> extends 
 
     List<T> queryByExample(T exampleEntity) throws DataAccessException;
 
-    T queryForObject(String id) throws DataAccessException;
+    T queryForObject(String daoMethodName) throws DataAccessException;
 
-    T queryForObject(String id, Object parameterObject) throws DataAccessException;
+    T queryForObject(String daoMethodName, Object parameterObject) throws DataAccessException;
 
-    List<T> queryForList(String id) throws DataAccessException;
+    List<T> queryForList(String daoMethodName) throws DataAccessException;
 
-    List<T> queryForList(String id, Object parameterObject) throws DataAccessException;
+    List<T> queryForList(String daoMethodName, Object parameterObject) throws DataAccessException;
+
+    void batchRemove(List<PK> PrimaryKeyList) throws DataAccessException;
 
 }
