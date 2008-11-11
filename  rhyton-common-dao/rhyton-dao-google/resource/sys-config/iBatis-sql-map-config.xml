@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN"
+					"http://www.ibatis.com/dtd/sql-map-config-2.dtd">
+
+<sqlMapConfig>
+	<settings cacheModelsEnabled="true" useStatementNamespaces="true" enhancementEnabled="true" maxTransactions="20" maxRequests="32" maxSessions="10" />
+	<typeHandler jdbcType="CHAR" javaType="boolean"  callback="com.rhyton.framework.core.dao.iBatis.type.YNBooleanTypeHandler"  />
+	
+<!--	<typeHandler jdbcType="CHAR" javaType="boolean"  callback="com.rhyton.framework.core.dao.iBatis.type.YesNoBoolTypeHandlerCallback"  />-->
+	
+	
+	<!--	<sqlMap resource="com/rhyton/framework/component/orgAuth/dao/sqlmaps/Organization.xml" />-->
+	<!--	<sqlMap resource="com/rhyton/framework/component/orgAuth/dao/sqlmaps/OrgType.xml" />-->
+	<sqlMap resource="classpath*:/com/rhyton/**/sqlmaps/*.ibatis.xml" />
+	<!--		<sqlMap  url="file:///D:/workspace/rhyton/src/com/rhyton/**/sqlmaps/Organizat*.xml" />-->
+</sqlMapConfig>
