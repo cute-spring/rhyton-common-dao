@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+            http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.0.xsd">
+	
+	
+	<bean id="organizationDao" class="com.rhyton.framework.component.orgAuth.dao.ibatis.OrganizationDaoiBatis" parent="iBatisGenericDao"></bean>
+	
+	<bean id="menuDao" class="com.rhyton.component.secure.menu.dao.MenuDaoiBatis" parent="iBatisGenericDao"></bean>
+	
+	<!--
+	<bean id="organizationDao" class="com.rhyton.framework.component.orgAuth.dao.ibatis.OrganizationDaoiBatis" parent="iBatisGenericDao"></bean>
+
+	<bean id="orgTypeDao" class="com.rhyton.framework.component.orgAuth.dao.ibatis.OrgTypeDaoiBatis" parent="iBatisGenericDao"></bean>
+
+	<bean id="userTypeDao" class="com.rhyton.framework.component.orgAuth.dao.ibatis.UserTypeDaoiBatis" parent="iBatisGenericDao"></bean>
+
+	<bean id="userDao" class="com.rhyton.framework.component.orgAuth.dao.ibatis.UserDaoiBatis" parent="iBatisGenericDao"></bean>
+
+	<bean id="optionDao" class="com.rhyton.framework.component.orgAuth.dao.ibatis.OptionDaoiBatis" parent="iBatisGenericDao"></bean>
+
+	<bean id="roleDao" class="com.rhyton.framework.component.orgAuth.dao.ibatis.RoleDaoiBatis" parent="iBatisGenericDao"></bean>
+
+	<bean id="resourceTypeDao" class="com.rhyton.framework.component.orgAuth.dao.ibatis.ResourceTypeDaoiBatis" parent="iBatisGenericDao"></bean>
+
+	<bean id="operationDao" class="com.rhyton.framework.component.orgAuth.dao.ibatis.OperationDaoiBatis" parent="iBatisGenericDao"></bean>
+
+	<bean id="permissionDao" class="com.rhyton.framework.component.orgAuth.dao.ibatis.PermissionDaoiBatis" parent="iBatisGenericDao"></bean>
+
+	<bean id="resourceDao" class="com.rhyton.framework.component.orgAuth.dao.ibatis.ResourceDaoiBatis" parent="iBatisGenericDao"></bean>
+
+	<bean id="menuDao" class="com.rhyton.framework.component.orgAuth.dao.ibatis.MenuDaoiBatis" parent="iBatisGenericDao">
+		<property name="resourceDao">
+			<ref bean="resourceDao" />
+		</property>
+	</bean>
+
+	 -->
+
+	<!-- 
+		<bean id="resourceDao" class="com.rhyton.framework.component.orgAuth.dao.ibatis.ResourceDaoJdbcImp">
+		<property name="dataSource"><ref bean="dataSource"/></property>
+		</bean>
+	-->
+</beans>
