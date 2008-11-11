@@ -182,8 +182,8 @@ public class SqlMapClientGenericPlusDaoImp<T, PK extends Serializable> extends S
 	return new IbatisPaginationFactory<T>(getSqlMapClientTemplate(), exampleEntity).getPaginationHolder(pageInfo);
     }
 
-    public PaginationHolder<T> getPaginationHolder(final String id, PaginationInfo pageInfo, T exampleEntity) {
-	return new IbatisPaginationFactory<T>(getSqlMapClientTemplate(), exampleEntity, id).getPaginationHolder(pageInfo);
+    public PaginationHolder<T> getPaginationHolder(final String daoMethodName, PaginationInfo pageInfo, T exampleEntity) {
+	return new IbatisPaginationFactory<T>(getSqlMapClientTemplate(), exampleEntity, daoMethodName).getPaginationHolder(pageInfo);
     }
 
     //-------------------------------------------------------------------------
@@ -259,7 +259,7 @@ public class SqlMapClientGenericPlusDaoImp<T, PK extends Serializable> extends S
 	return this.persistentClass.getName();
     }
 
-    protected final String getStatementName(String methodName) {
+    private final String getStatementName(String methodName) {
 	return getClassName()  + "." + methodName;
     }
 
