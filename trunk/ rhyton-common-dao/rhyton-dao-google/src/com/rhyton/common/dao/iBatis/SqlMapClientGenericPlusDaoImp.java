@@ -62,14 +62,9 @@ public class SqlMapClientGenericPlusDaoImp<T, PK extends Serializable> extends S
 	this.persistentClass = persistentClass;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @SuppressWarnings("unchecked")
-    public List<T> getAll() {
-	return getSqlMapClientTemplate().queryForList(iBatisDaoUtils.getSelectQuery(this.getClassName()), null);
-    }
-
+    //-------------------------------------------------------------------------
+    // Implementation CRUD methods
+    //-------------------------------------------------------------------------
     /**
      * {@inheritDoc}
      */
@@ -176,6 +171,13 @@ public class SqlMapClientGenericPlusDaoImp<T, PK extends Serializable> extends S
 	getSqlMapClientTemplate().update(iBatisDaoUtils.getDeleteByPrimaryKeyQuery(this.getClassName()), id);
     }
 
+    public List<T> getAll() {
+	return getSqlMapClientTemplate().queryForList(iBatisDaoUtils.getSelectQuery(this.getClassName()), null);
+    }
+
+    //-------------------------------------------------------------------------
+    // pagination methods
+    //-------------------------------------------------------------------------
     public PaginationHolder<T> getPaginationHolder(PaginationInfo pageInfo, T exampleEntity) {
 	return new IbatisPaginationFactory<T>(getSqlMapClientTemplate(), exampleEntity).getPaginationHolder(pageInfo);
     }
@@ -184,6 +186,9 @@ public class SqlMapClientGenericPlusDaoImp<T, PK extends Serializable> extends S
 	return new IbatisPaginationFactory<T>(getSqlMapClientTemplate(), exampleEntity, id).getPaginationHolder(pageInfo);
     }
 
+    //-------------------------------------------------------------------------
+    // query methods
+    //-------------------------------------------------------------------------
     @SuppressWarnings("unchecked")
     public List<T> queryByExample(T exampleEntity) {
 	return getSqlMapClientTemplate().queryForList(iBatisDaoUtils.getSelectQuery(this.getClassName()), exampleEntity);
@@ -205,17 +210,40 @@ public class SqlMapClientGenericPlusDaoImp<T, PK extends Serializable> extends S
 	return (T) getSqlMapClientTemplate().queryForObject(getStatementName(daoMethodName), parameterObject);
     }
 
+    //-------------------------------------------------------------------------
+    // update methods
+    //-------------------------------------------------------------------------
+    protected void update(String daoMethodName, Object parameter) {
+	this.getSqlMapClientTemplate().update(getStatementName(daoMethodName), parameter);
+    }
+
+    protected void update(String daoMethodName) {
+	this.getSqlMapClientTemplate().update(getStatementName(daoMethodName));
+    }
+
+    //====================================batch execute====================================================//
     /**
-     * @param daoMethodName
-     * @param objList (javaBean\XML\Map)
+     * batch delete from db
+     * 
+     * @param PrimaryKeyList
      * @throws DataAccessException
      */
-    protected void batchExecute(final String daoMethodName, final List objList) throws DataAccessException {
+    protected void batchRemove(final List<PK> PrimaryKeyList) throws DataAccessException {
+	batchExecute(iBatisDaoUtils.getDeleteByPrimaryKeyQuery(this.getClassName()), PrimaryKeyList);
+    }
+
+    /**
+     * @param daoMethodName
+     * @param parameterList
+     *                (javaBean\XML\Map)
+     * @throws DataAccessException
+     */
+    protected void batchExecute(final String daoMethodName, final List parameterList) throws DataAccessException {
 	SqlMapClientCallback callback = new SqlMapClientCallback() {
 	    public Object doInSqlMapClient(SqlMapExecutor executor) throws SQLException {
 		executor.startBatch();
-		for (Object obj : objList) {
-		    executor.update(getStatementName(daoMethodName), obj);
+		for (Object parameter : parameterList) {
+		    executor.update(getStatementName(daoMethodName), parameter);
 		}
 		executor.executeBatch();
 		return null;
@@ -224,20 +252,15 @@ public class SqlMapClientGenericPlusDaoImp<T, PK extends Serializable> extends S
 	this.getSqlMapClientTemplate().execute(callback);
     }
 
-    /**batch delete from db
-     * @param PrimaryKeyList
-     * @throws DataAccessException
-     */
-    protected void batchRemove(final List<PK> PrimaryKeyList) throws DataAccessException {
-	batchExecute(iBatisDaoUtils.getDeleteByPrimaryKeyQuery(this.getClassName()), PrimaryKeyList);
-    }
-
-    protected final String getClassName() {
+    //-------------------------------------------------------------------------
+    // Implementation hooks and helper methods
+    //-------------------------------------------------------------------------
+    private final String getClassName() {
 	return this.persistentClass.getName();
     }
 
     protected final String getStatementName(String methodName) {
-	return this.persistentClass.getName() + "." + methodName;
+	return getClassName()  + "." + methodName;
     }
 
 }
