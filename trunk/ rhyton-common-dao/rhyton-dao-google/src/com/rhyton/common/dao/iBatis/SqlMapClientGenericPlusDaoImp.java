@@ -205,18 +205,31 @@ public class SqlMapClientGenericPlusDaoImp<T, PK extends Serializable> extends S
 	return (T) getSqlMapClientTemplate().queryForObject(getStatementName(daoMethodName), parameterObject);
     }
 
-    protected void batchExecute(final String id, final List objList) throws DataAccessException {
+    /**
+     * @param daoMethodName
+     * @param objList (javaBean\XML\Map)
+     * @throws DataAccessException
+     */
+    protected void batchExecute(final String daoMethodName, final List objList) throws DataAccessException {
 	SqlMapClientCallback callback = new SqlMapClientCallback() {
 	    public Object doInSqlMapClient(SqlMapExecutor executor) throws SQLException {
 		executor.startBatch();
 		for (Object obj : objList) {
-		    executor.update(id, obj);
+		    executor.update(getStatementName(daoMethodName), obj);
 		}
 		executor.executeBatch();
 		return null;
 	    }
 	};
 	this.getSqlMapClientTemplate().execute(callback);
+    }
+
+    /**batch delete from db
+     * @param PrimaryKeyList
+     * @throws DataAccessException
+     */
+    protected void batchRemove(final List<PK> PrimaryKeyList) throws DataAccessException {
+	batchExecute(iBatisDaoUtils.getDeleteByPrimaryKeyQuery(this.getClassName()), PrimaryKeyList);
     }
 
     protected final String getClassName() {
