@@ -3,6 +3,7 @@ package com.rhyton.common.dao.iBatis;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -264,6 +265,43 @@ public class SqlMapClientGenericPlusDaoImp<T, PK extends Serializable> extends S
 	    }
 	};
 	this.getSqlMapClientTemplate().execute(callback);
+    }
+    
+    
+    
+    /**
+     * Executes a mapped SQL SELECT statement that returns data to populate
+     * a number of result objects that will be keyed into a Map.
+     * <p/>
+     * The parameter object is generally used to supply the input
+     * data for the WHERE clause parameter(s) of the SELECT statement.
+     *
+     * @param id              The name of the statement to execute.
+     * @param parameterObject The parameter object (e.g. JavaBean, Map, XML etc.).
+     * @param keyProp         The property to be used as the key in the Map.
+     * @return A Map keyed by keyProp with values being the result object instance.
+     * @throws java.sql.SQLException If an error occurs.
+     */
+    protected Map<Object,T> queryForMap(String daoMethod, Object parameterObject, String keyProp) throws DataAccessException {
+	return this.getSqlMapClientTemplate().queryForMap(getStatementName(daoMethod), parameterObject, keyProp);
+    }
+
+    /**
+     * Executes a mapped SQL SELECT statement that returns data to populate
+     * a number of result objects from which one property will be keyed into a Map.
+     * <p/>
+     * The parameter object is generally used to supply the input
+     * data for the WHERE clause parameter(s) of the SELECT statement.
+     *
+     * @param id              The name of the statement to execute.
+     * @param parameterObject The parameter object (e.g. JavaBean, Map, XML etc.).
+     * @param keyProp         The property to be used as the key in the Map.
+     * @param valueProp       The property to be used as the value in the Map.
+     * @return A Map keyed by keyProp with values of valueProp.
+     * @throws java.sql.SQLException If an error occurs.
+     */
+    protected Map queryForMap(String daoMethod, Object parameterObject, String keyProp, String valueProp)  throws DataAccessException {
+	return this.getSqlMapClientTemplate().queryForMap(getStatementName(daoMethod), parameterObject, keyProp,valueProp);
     }
 
     //-------------------------------------------------------------------------
