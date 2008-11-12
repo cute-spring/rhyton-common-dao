@@ -46,6 +46,11 @@ import com.ibatis.sqlmap.engine.type.TypeHandlerFactory;
 import com.ibatis.sqlmap.engine.type.XmlCollectionTypeMarker;
 import com.ibatis.sqlmap.engine.type.XmlTypeMarker;
 
+/**
+ * for ibatis-2.3.0.677.jar
+ * @author alter by zhangxin
+ *
+ */
 public class SqlMapConfigParser extends BaseParser {
 
 	protected final NodeletParser parser = new NodeletParser();
