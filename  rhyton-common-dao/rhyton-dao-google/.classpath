@@ -19,7 +19,6 @@
 	<classpathentry kind="lib" path="/rhSecure_2/WebRoot/WEB-INF/lib/commons-pool.jar"/>
 	<classpathentry kind="lib" path="/rhSecure_2/WebRoot/WEB-INF/lib/dom4j-1.6.1.jar"/>
 	<classpathentry kind="lib" path="/rhSecure_2/WebRoot/WEB-INF/lib/ehcache-1.2.4.jar"/>
-	<classpathentry kind="lib" path="/rhSecure_2/WebRoot/WEB-INF/lib/ibatis-2.3.0.677.jar"/>
 	<classpathentry kind="lib" path="/rhSecure_2/WebRoot/WEB-INF/lib/jdbc2_0-stdext.jar"/>
 	<classpathentry kind="lib" path="/rhSecure_2/WebRoot/WEB-INF/lib/junit-3.8.1.jar"/>
 	<classpathentry kind="lib" path="/rhSecure_2/WebRoot/WEB-INF/lib/log4j-1.2.14.jar"/>
@@ -35,5 +34,6 @@
 	<classpathentry kind="lib" path="/rhSecure_2/WebRoot/WEB-INF/lib/xstream.jar"/>
 	<classpathentry kind="lib" path="/rhSecure_2/WebRoot/WEB-INF/lib/commons-logging.jar"/>
 	<classpathentry kind="lib" path="E:/spring-framework-2.5/lib/hibernate/hibernate3.jar"/>
+	<classpathentry kind="lib" path="/rhSecure_2/WebRoot/WEB-INF/lib/ibatis-2.3.4.726.jar" sourcepath="E:/Handy API Reference Collection/src/ibatis-src.zip"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
