@@ -229,10 +229,9 @@ public class SqlMapClientGenericPlusDaoImp<T, PK extends Serializable> extends S
      * @throws DataAccessException
      */
     public void batchRemove(final List<PK> PrimaryKeyList) throws DataAccessException {
-	batchExecute(iBatisDaoUtils.getDeleteByPrimaryKeyQuery(this.getClassName()), PrimaryKeyList);
+	__batchExecute(iBatisDaoUtils.getDeleteByPrimaryKeyQuery(this.getClassName()), PrimaryKeyList);
     }
-    
-    
+
     /**
      * batch update from db
      * 
@@ -240,7 +239,7 @@ public class SqlMapClientGenericPlusDaoImp<T, PK extends Serializable> extends S
      * @throws DataAccessException
      */
     public void batchUpdate(final List<T> parameterList) throws DataAccessException {
-	batchExecute(iBatisDaoUtils.getUpdateQuery(this.getClassName()), parameterList);
+	__batchExecute(iBatisDaoUtils.getUpdateQuery(this.getClassName()), parameterList);
     }
 
     /**
@@ -250,11 +249,15 @@ public class SqlMapClientGenericPlusDaoImp<T, PK extends Serializable> extends S
      * @throws DataAccessException
      */
     protected void batchExecute(final String daoMethodName, final List parameterList) throws DataAccessException {
+	__batchExecute(getStatementName(daoMethodName), parameterList);
+    }
+
+    private void __batchExecute(final String fullStatementId, final List parameterList) throws DataAccessException {
 	SqlMapClientCallback callback = new SqlMapClientCallback() {
 	    public Object doInSqlMapClient(SqlMapExecutor executor) throws SQLException {
 		executor.startBatch();
 		for (Object parameter : parameterList) {
-		    executor.update(getStatementName(daoMethodName), parameter);
+		    executor.update(fullStatementId, parameter);
 		}
 		executor.executeBatch();
 		return null;
@@ -271,7 +274,7 @@ public class SqlMapClientGenericPlusDaoImp<T, PK extends Serializable> extends S
     }
 
     private final String getStatementName(String methodName) {
-	return getClassName()  + "." + methodName;
+	return getClassName() + "." + methodName;
     }
 
 }
