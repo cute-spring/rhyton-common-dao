@@ -51,7 +51,7 @@ public class IbatisPaginationFactory<T> extends PaginationHolderFactory<T> {
 	if (log.isInfoEnabled()) {
 	    log.info("firstNum = " + firstNum + "; lastNum =  " + lastNum);
 	}
-	return (List<T>) this.smct.queryForList(getListPageStatementName(), this.getParameterObject(), firstNum - 1, lastNum);
+	return (List<T>) this.smct.queryForList(getListPageStatementName(), this.getParameterObject(), firstNum - 1, lastNum-(firstNum - 1));
     }
 
     public int getTotalNumOfElements() {
