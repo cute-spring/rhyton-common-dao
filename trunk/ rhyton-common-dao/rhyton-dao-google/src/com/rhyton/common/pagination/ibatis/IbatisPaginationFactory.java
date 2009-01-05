@@ -10,65 +10,68 @@ import com.rhyton.common.pagination.PaginationHolderFactory;
 
 /**
  * @author zhangxin
- * 
  * @param <T>
  */
 public class IbatisPaginationFactory<T> extends PaginationHolderFactory<T> {
-	private Log log = LogFactory.getLog(IbatisPaginationFactory.class);
+    private Log log = LogFactory.getLog(IbatisPaginationFactory.class);
 
-	private SqlMapClientTemplate smct;
-	private T exampleEntity;
+    private SqlMapClientTemplate smct;
 
-	private String className;
+    private Object parameterObject;
 
-	private String methodName;
+    private String className;
 
-	private static final String POSTFIX_LISTPAGE_COUNT = ".listPageCount";
+    private String methodName;
 
-	private static final String POSTFIX_LISTPAGE = ".listPage";
+    private static final String POSTFIX_LISTPAGE_COUNT = ".listPageCount";
 
-	public IbatisPaginationFactory(SqlMapClientTemplate smct, T exampleEntity) {
-		this.smct = smct;
-		this.exampleEntity = exampleEntity;
-		this.className = exampleEntity.getClass().getName();
+    private static final String POSTFIX_LISTPAGE = ".listPage";
+
+    public IbatisPaginationFactory(SqlMapClientTemplate smct, T exampleEntity) {
+	this(smct, exampleEntity, null);
+    }
+
+    public IbatisPaginationFactory(SqlMapClientTemplate smct, String className, Object parameterObject) {
+	this(smct, className, parameterObject, null);
+    }
+
+    public IbatisPaginationFactory(SqlMapClientTemplate smct, T exampleEntity, String methodName) {
+	this(smct, exampleEntity.getClass().getName(), exampleEntity, methodName);
+    }
+
+    public IbatisPaginationFactory(SqlMapClientTemplate smct, String className, Object parameterObject, String methodName) {
+	this.smct = smct;
+	this.className = className;
+	this.parameterObject = parameterObject;
+	this.methodName = methodName;
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<T> getPageList(final int firstNum, final int lastNum) {
+	if (log.isInfoEnabled()) {
+	    log.info("firstNum = " + firstNum + "; lastNum =  " + lastNum);
 	}
+	return (List<T>) this.smct.queryForList(getListPageStatementName(), this.getParameterObject(), firstNum - 1, lastNum);
+    }
 
-	public IbatisPaginationFactory(SqlMapClientTemplate smct, T exampleEntity, String methodName) {
-		this.smct = smct;
-		this.exampleEntity = exampleEntity;
-		this.className = exampleEntity.getClass().getName();
-		this.methodName = methodName;
+    public int getTotalNumOfElements() {
+	if (log.isInfoEnabled()) {
+	    log.info("TotalNumOfElements SQL= " + this.getParameterObject());
 	}
+	Integer tn = (Integer) this.smct.queryForObject(getListPageCountStatementName(), this.getParameterObject());
+	return tn.intValue();
+    }
 
-	@SuppressWarnings("unchecked")
-	public List<T> getPageList(final int firstNum, final int lastNum) {
-		if (log.isInfoEnabled()) {
-			log.info("firstNum = " + firstNum + "; lastNum =  " + lastNum);
-		}
-		return (List<T>) this.smct.queryForList(getListPageStatementName(), this.getExampleEntity(), firstNum-1, lastNum);
-	}
+    private String getListPageCountStatementName() {
+	return this.className + POSTFIX_LISTPAGE_COUNT + (this.methodName == null ? "" : ("_" + this.methodName));
+    }
 
-	public int getTotalNumOfElements() {
-		if (log.isInfoEnabled()) {
-			log.info("TotalNumOfElements SQL= " + this.getExampleEntity());
-		}
-		Integer tn = (Integer) this.smct.queryForObject(getListPageCountStatementName(), this.getExampleEntity());
-		return tn.intValue();
-	}
+    private String getListPageStatementName() {
+	return this.className + POSTFIX_LISTPAGE + (this.methodName == null ? "" : ("_" + this.methodName));
+    }
 
-	private String getListPageCountStatementName() {
-		return this.className + POSTFIX_LISTPAGE_COUNT + (this.methodName == null ? "" : ("_" + this.methodName));
-	}
+    private Object getParameterObject() {
+	return parameterObject;
+    }
 
-	private String getListPageStatementName() {
-		return this.className + POSTFIX_LISTPAGE + (this.methodName == null ? "" : ("_" + this.methodName));
-	}
-
-	public T getExampleEntity() {
-		return exampleEntity;
-	}
-
-	public void setExampleEntity(T exampleEntity) {
-		this.exampleEntity = exampleEntity;
-	}
 }
