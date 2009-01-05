@@ -2,6 +2,7 @@ package com.rhyton.common.dao.iBatis;
 
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -48,7 +49,6 @@ public class SqlMapClientGenericPlusDaoImp<T, PK extends Serializable> extends S
 
     private Class<T> persistentClass;
 
-    @SuppressWarnings("unchecked")
     public SqlMapClientGenericPlusDaoImp() {
 	this.persistentClass = GenericsUtils.getSuperClassGenricType(getClass());
     }
@@ -63,13 +63,13 @@ public class SqlMapClientGenericPlusDaoImp<T, PK extends Serializable> extends S
 	this.persistentClass = persistentClass;
     }
 
-    //-------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     // Implementation CRUD methods
-    //-------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
+
     public T get(PK id) {
 	T object = (T) getSqlMapClientTemplate().queryForObject(iBatisDaoUtils.getFindQuery(this.getClassName()), id);
 	// if (object == null) {
@@ -82,82 +82,32 @@ public class SqlMapClientGenericPlusDaoImp<T, PK extends Serializable> extends S
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
+
     public boolean exists(PK id) {
-	T object = (T) getSqlMapClientTemplate().queryForObject(iBatisDaoUtils.getFindQuery(this.getClassName()), id);
-	return object != null;
+	//	T object = (T) getSqlMapClientTemplate().queryForObject(iBatisDaoUtils.getFindQuery(this.getClassName()), id);
+	return get(id) != null;
     }
 
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
+
     public T save(final T object) {
 	if (object == null || !this.persistentClass.isAssignableFrom(object.getClass())) {
 	    // throw new InvalidTargetObjectTypeException("");
 	}
 	String className = this.getClassName();
 	Object primaryKey = iBatisDaoUtils.getPrimaryKeyValue(object);
-	// Class primaryKeyClass = iBatisDaoUtils.getPrimaryKeyField(object).getType();
-	String keyId = null;
-
-	// check for null id
-	if (primaryKey != null) {
-	    keyId = primaryKey.toString();
-	}
+	String keyId = (primaryKey != null) ? primaryKey.toString() : null;
 
 	// check for new record
 	if (StringUtils.isBlank(keyId)) {
-	    // iBatisDaoUtils.prepareObjectForSaveOrUpdate(object);
-	    primaryKey = getSqlMapClientTemplate().insert(iBatisDaoUtils.getInsertQuery(className), object);
-	    // iBatisDaoUtils.setPrimaryKey(object, primaryKeyClass, primaryKey);
+	    primaryKey = _insert(iBatisDaoUtils.getInsertQuery(className), object);
 	} else {
-	    // iBatisDaoUtils.prepareObjectForSaveOrUpdate(object);
-	    getSqlMapClientTemplate().update(iBatisDaoUtils.getUpdateQuery(className), object);
+	    update(iBatisDaoUtils.getUpdateQuery(className), object);
 	}
 
 	// check for null id
-	if (iBatisDaoUtils.getPrimaryKeyValue(object) == null) {
-	    throw new ObjectRetrievalFailureException(className, object);
-	} else {
-	    return object;
-	}
-    }
-
-    public T insert(final T object) {
-	if (object == null || !this.persistentClass.isAssignableFrom(object.getClass())) {
-	    // throw new InvalidTargetObjectTypeException("");
-	}
-	String className = this.getClassName();
-
-	// Object key = getSqlMapClientTemplate().insert(iBatisDaoUtils.getInsertQuery(className), object);
-	getSqlMapClientTemplate().insert(iBatisDaoUtils.getInsertQuery(className), object);
-	if (iBatisDaoUtils.getPrimaryKeyValue(object) == null) { //
-	    throw new ObjectRetrievalFailureException(className, object);
-	} else {
-	    return object;
-	}
-    }
-
-    public T update(final T object) {
-	if (object == null || !this.persistentClass.isAssignableFrom(object.getClass())) {
-	    // throw new InvalidTargetObjectTypeException("");
-	}
-	String className = this.getClassName();
-	Object primaryKey = iBatisDaoUtils.getPrimaryKeyValue(object);
-
-	String keyId = null;
-
-	// check for null id
-	if (primaryKey != null) {
-	    keyId = primaryKey.toString();
-	}
-
-	// check for new record
-	if (!StringUtils.isBlank(keyId)) {
-	    getSqlMapClientTemplate().update(iBatisDaoUtils.getUpdateQuery(className), object);
-	}
-
 	if (iBatisDaoUtils.getPrimaryKeyValue(object) == null) {
 	    throw new ObjectRetrievalFailureException(className, object);
 	} else {
@@ -169,68 +119,85 @@ public class SqlMapClientGenericPlusDaoImp<T, PK extends Serializable> extends S
      * {@inheritDoc}
      */
     public void remove(PK id) {
-	getSqlMapClientTemplate().update(iBatisDaoUtils.getDeleteByPrimaryKeyQuery(this.getClassName()), id);
+	//getSqlMapClientTemplate().update(iBatisDaoUtils.getDeleteByPrimaryKeyQuery(this.getClassName()), id);
+	update(iBatisDaoUtils.getDeleteByPrimaryKeyQuery(this.getClassName()), id);
     }
 
     public List<T> getAll() {
-	return getSqlMapClientTemplate().queryForList(iBatisDaoUtils.getSelectQuery(this.getClassName()), null);
+	//return getSqlMapClientTemplate().queryForList(iBatisDaoUtils.getSelectQuery(this.getClassName()), null);
+	return _queryForList(iBatisDaoUtils.getSelectQuery(this.getClassName()), null);
     }
 
-    //-------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     // pagination methods
-    //-------------------------------------------------------------------------
-    public PaginationHolder<T> getPaginationHolder(PaginationInfo pageInfo, T exampleEntity) {
-	return new IbatisPaginationFactory<T>(getSqlMapClientTemplate(), exampleEntity).getPaginationHolder(pageInfo);
+    // -------------------------------------------------------------------------
+
+    public PaginationHolder<T> getPaginationHolder(PaginationInfo pageInfo, Object parameterObj) {
+	//	parameterObj = parameterObj == null ? this.getDefaultBeanInstance():parameterObj;
+	return new IbatisPaginationFactory<T>(getSqlMapClientTemplate(), getClassName(), parameterObj).getPaginationHolder(pageInfo);
     }
 
-    public PaginationHolder<T> getPaginationHolder(final String daoMethodName, PaginationInfo pageInfo, T exampleEntity) {
-	return new IbatisPaginationFactory<T>(getSqlMapClientTemplate(), exampleEntity, daoMethodName).getPaginationHolder(pageInfo);
+    public PaginationHolder<T> getPaginationHolder(String daoMethodName, PaginationInfo pageInfo, Object parameterObj) {
+	//	parameterObj = parameterObj == null ? this.getDefaultBeanInstance():parameterObj;
+	return new IbatisPaginationFactory<T>(getSqlMapClientTemplate(), getClassName(), parameterObj, daoMethodName)
+		.getPaginationHolder(pageInfo);
     }
 
-    //-------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     // query methods
-    //-------------------------------------------------------------------------
-    @SuppressWarnings("unchecked")
-    public List<T> queryByExample(T exampleEntity) {
-	return getSqlMapClientTemplate().queryForList(iBatisDaoUtils.getSelectQuery(this.getClassName()), exampleEntity);
-    }
+    // -------------------------------------------------------------------------
 
-    public List<T> queryForList(String daoMethodName) throws DataAccessException {
-	return getSqlMapClientTemplate().queryForList(getStatementName(daoMethodName));
-    }
-
-    public List<T> queryForList(String daoMethodName, Object parameterObject) throws DataAccessException {
-	return getSqlMapClientTemplate().queryForList(getStatementName(daoMethodName), parameterObject);
+    public T queryForObject(T exampleEntity) {
+	//return (T) getSqlMapClientTemplate().queryForObject(iBatisDaoUtils.getSelectQuery(this.getClassName()), exampleEntity);
+	return _queryForObject(iBatisDaoUtils.getSelectQuery(this.getClassName()), exampleEntity);
     }
 
     public T queryForObject(String daoMethodName) throws DataAccessException {
-	return (T) getSqlMapClientTemplate().queryForObject(getStatementName(daoMethodName));
+	//return (T) getSqlMapClientTemplate().queryForObject(getStatementName(daoMethodName));
+	return queryForObject(daoMethodName, null);
     }
 
     public T queryForObject(String daoMethodName, Object parameterObject) throws DataAccessException {
-	return (T) getSqlMapClientTemplate().queryForObject(getStatementName(daoMethodName), parameterObject);
+	//return (T) getSqlMapClientTemplate().queryForObject(getStatementName(daoMethodName), parameterObject);
+	return _queryForObject(getStatementName(daoMethodName), parameterObject);
     }
 
-    //-------------------------------------------------------------------------
+    public List<T> queryByExample(T exampleEntity) {
+	//return getSqlMapClientTemplate().queryForList(iBatisDaoUtils.getSelectQuery(this.getClassName()), exampleEntity);
+	return _queryForList(iBatisDaoUtils.getSelectQuery(this.getClassName()), exampleEntity);
+    }
+
+    public List<T> queryForList(String daoMethodName) throws DataAccessException {
+	//return getSqlMapClientTemplate().queryForList(getStatementName(daoMethodName));
+	return queryForList(daoMethodName, null);
+    }
+
+    public List<T> queryForList(String daoMethodName, Object parameterObject) throws DataAccessException {
+	//return getSqlMapClientTemplate().queryForList(getStatementName(daoMethodName), parameterObject);
+	return _queryForList(getStatementName(daoMethodName), parameterObject);
+    }
+
+    // -------------------------------------------------------------------------
     // update methods
-    //-------------------------------------------------------------------------
-    protected void update(String daoMethodName, Object parameter) {
+    // -------------------------------------------------------------------------
+    public void update(String daoMethodName, Object parameter) {
 	this.getSqlMapClientTemplate().update(getStatementName(daoMethodName), parameter);
     }
 
-    protected void update(String daoMethodName) {
-	this.getSqlMapClientTemplate().update(getStatementName(daoMethodName));
+    public void update(String daoMethodName) {
+	//this.getSqlMapClientTemplate().update(getStatementName(daoMethodName));
+	update(daoMethodName, null);
     }
 
-    //====================================batch execute====================================================//
+    // ====================================batch execute====================================================//
     /**
      * batch delete from db
      * 
      * @param PrimaryKeyList
      * @throws DataAccessException
      */
-    public void batchRemove(final List<PK> PrimaryKeyList) throws DataAccessException {
-	__batchExecute(iBatisDaoUtils.getDeleteByPrimaryKeyQuery(this.getClassName()), PrimaryKeyList);
+    public void batchRemove(final Collection<PK> PrimaryKeyList) throws DataAccessException {
+	_batchExecute(iBatisDaoUtils.getDeleteByPrimaryKeyQuery(this.getClassName()), PrimaryKeyList);
     }
 
     /**
@@ -239,22 +206,84 @@ public class SqlMapClientGenericPlusDaoImp<T, PK extends Serializable> extends S
      * @param parameterList
      * @throws DataAccessException
      */
-    public void batchUpdate(final List<T> parameterList) throws DataAccessException {
-	__batchExecute(iBatisDaoUtils.getUpdateQuery(this.getClassName()), parameterList);
+    public void batchUpdate(final Collection<T> parameterList) throws DataAccessException {
+	_batchExecute(iBatisDaoUtils.getUpdateQuery(this.getClassName()), parameterList);
+    }
+
+    /**
+     * batch insert from db
+     * 
+     * @param parameterList
+     * @throws DataAccessException
+     */
+    public void batchInsert(final Collection<T> parameterList) throws DataAccessException {
+	final String insertMethod = iBatisDaoUtils.getInsertQuery(this.getClassName());
+	this.getSqlMapClientTemplate().execute(new SqlMapClientCallback() {
+	    public Object doInSqlMapClient(SqlMapExecutor executor) throws SQLException {
+		executor.startBatch();
+		for (Object parameter : parameterList) {
+		    executor.insert(insertMethod, parameter);
+		}
+		executor.executeBatch();
+		return null;
+	    }
+	});
     }
 
     /**
      * @param daoMethodName
-     * @param parameterList
-     *                (javaBean\XML\Map)
+     * @param parameterList(javaBean\XML\Map)
      * @throws DataAccessException
      */
-    protected void batchExecute(final String daoMethodName, final List parameterList) throws DataAccessException {
-	__batchExecute(getStatementName(daoMethodName), parameterList);
+    protected void batchExecute(final String daoMethodName, final Collection parameterList) throws DataAccessException {
+	_batchExecute(getStatementName(daoMethodName), parameterList);
     }
 
-    private void __batchExecute(final String fullStatementId, final List parameterList) throws DataAccessException {
-	SqlMapClientCallback callback = new SqlMapClientCallback() {
+    protected Map<Object, T> queryForMap(String daoMethod, Object parameterObject, String keyProp) throws DataAccessException {
+	return this.getSqlMapClientTemplate().queryForMap(getStatementName(daoMethod), parameterObject, keyProp);
+    }
+
+    protected Map queryForMap(String daoMethod, Object parameterObject, String keyProp, String valueProp) throws DataAccessException {
+	return this.getSqlMapClientTemplate().queryForMap(getStatementName(daoMethod), parameterObject, keyProp, valueProp);
+    }
+
+    // -------------------------------------------------------------------------
+    // Implementation hooks and helper methods
+    // -------------------------------------------------------------------------
+    private final String getClassName() {
+	return this.persistentClass.getName();
+    }
+
+    protected final String getStatementName(String methodName) {
+	return getClassName() + "." + methodName;
+    }
+
+    //    private T getDefaultBeanInstance(){
+    //	try {
+    //	    return  persistentClass.newInstance();
+    //	} catch (InstantiationException e) {
+    //	    e.printStackTrace();
+    //	} catch (IllegalAccessException e) {
+    //	    e.printStackTrace();
+    //	}
+    //	return null;
+    //    }
+
+    //====================================================================================
+    private Object _insert(String statementName, Object parameter) throws DataAccessException {
+	return this.getSqlMapClientTemplate().insert(statementName, parameter);
+    }
+
+    private T _queryForObject(String statementId, Object parameterObject) throws DataAccessException {
+	return (T) getSqlMapClientTemplate().queryForObject(statementId, parameterObject);
+    }
+
+    private List<T> _queryForList(String statementName, Object parameterObject) throws DataAccessException {
+	return getSqlMapClientTemplate().queryForList(statementName, parameterObject);
+    }
+
+    private void _batchExecute(final String fullStatementId, final Collection parameterList) throws DataAccessException {
+	this.getSqlMapClientTemplate().execute(new SqlMapClientCallback() {
 	    public Object doInSqlMapClient(SqlMapExecutor executor) throws SQLException {
 		executor.startBatch();
 		for (Object parameter : parameterList) {
@@ -263,56 +292,6 @@ public class SqlMapClientGenericPlusDaoImp<T, PK extends Serializable> extends S
 		executor.executeBatch();
 		return null;
 	    }
-	};
-	this.getSqlMapClientTemplate().execute(callback);
+	});
     }
-    
-    
-    
-    /**
-     * Executes a mapped SQL SELECT statement that returns data to populate
-     * a number of result objects that will be keyed into a Map.
-     * <p/>
-     * The parameter object is generally used to supply the input
-     * data for the WHERE clause parameter(s) of the SELECT statement.
-     *
-     * @param id              The name of the statement to execute.
-     * @param parameterObject The parameter object (e.g. JavaBean, Map, XML etc.).
-     * @param keyProp         The property to be used as the key in the Map.
-     * @return A Map keyed by keyProp with values being the result object instance.
-     * @throws java.sql.SQLException If an error occurs.
-     */
-    protected Map<Object,T> queryForMap(String daoMethod, Object parameterObject, String keyProp) throws DataAccessException {
-	return this.getSqlMapClientTemplate().queryForMap(getStatementName(daoMethod), parameterObject, keyProp);
-    }
-
-    /**
-     * Executes a mapped SQL SELECT statement that returns data to populate
-     * a number of result objects from which one property will be keyed into a Map.
-     * <p/>
-     * The parameter object is generally used to supply the input
-     * data for the WHERE clause parameter(s) of the SELECT statement.
-     *
-     * @param id              The name of the statement to execute.
-     * @param parameterObject The parameter object (e.g. JavaBean, Map, XML etc.).
-     * @param keyProp         The property to be used as the key in the Map.
-     * @param valueProp       The property to be used as the value in the Map.
-     * @return A Map keyed by keyProp with values of valueProp.
-     * @throws java.sql.SQLException If an error occurs.
-     */
-    protected Map queryForMap(String daoMethod, Object parameterObject, String keyProp, String valueProp)  throws DataAccessException {
-	return this.getSqlMapClientTemplate().queryForMap(getStatementName(daoMethod), parameterObject, keyProp,valueProp);
-    }
-
-    //-------------------------------------------------------------------------
-    // Implementation hooks and helper methods
-    //-------------------------------------------------------------------------
-    private final String getClassName() {
-	return this.persistentClass.getName();
-    }
-
-    private final String getStatementName(String methodName) {
-	return getClassName() + "." + methodName;
-    }
-
 }
