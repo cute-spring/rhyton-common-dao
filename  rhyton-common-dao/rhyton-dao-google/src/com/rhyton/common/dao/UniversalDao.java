@@ -18,7 +18,7 @@ import com.rhyton.common.pagination.domain.PaginationInfo;
  *         instances of java.lang.Class传入到方法中,而GenericDao是把java.lang.Class这一类型信息作为了constructor的一部分,因此你将不得不作casting的动作在使用此类时(不过现在不用了).
  * @see com.rhyton.framework.core.dao.GenericDao
  */
-@Deprecated
+
 public interface UniversalDao {
 
 	/**
